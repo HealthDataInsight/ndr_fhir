@@ -19,6 +19,35 @@ module NdrFhir
       ensure_all_mappings_are_tables
     end
 
+    def expand_dot_notation(mapped_hash)
+      output_hash = {}
+      mapped_hash.each do |key, value|
+        pointer = output_hash
+
+        sections = key.split('.')
+        sections[0..-2].each do |section|
+          # not the last part
+          matchdata = section.match(/\A([^\[]*)(?:\[(\d+)\]\z)?/)
+          section = matchdata[1]
+
+          if matchdata[2].nil?
+            # hash
+            pointer[section] ||= {}
+            pointer = pointer[section]
+          else
+            # array
+            array_index = matchdata[2].to_i
+            pointer[section] ||= []
+            pointer[section][array_index] ||= {}
+            pointer = pointer[section][array_index]
+          end
+        end
+
+        pointer[sections.last] = value
+      end
+      output_hash
+    end
+
     def process
       mapped_hashes = {}
       rawtext_hashes = {}
@@ -27,11 +56,18 @@ module NdrFhir
         table.transform(rows).each do |instance, fields, _index|
           klass = instance.split('#').first
 
-          mapped_hashes[klass] ||= []
-          mapped_hashes[klass] << fields.except(:rawtext)
+          if klass == 'FHIR::Patient'
+            fields.delete('subject.reference')
+          elsif fields['identifier[0].system'] == 'https://fhir.nhs.uk/Id/nhs-number'
+            # NHS Number has mapped to a non Patient resource
+            fields.delete('identifier[0].system')
+            fields.delete('identifier[0].value')
+          end
 
-          rawtext_hashes[klass] ||= []
-          rawtext_hashes[klass] << fields[:rawtext]
+          mapped_fields = fields.except(:rawtext)
+          mapped_hashes[klass] ||= []
+
+          mapped_hashes[klass] << expand_dot_notation(mapped_fields)
         end
       end
 

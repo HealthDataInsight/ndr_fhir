@@ -40,13 +40,21 @@
       - !ruby/regexp /\A06\z/: trace-in-progress
       - !ruby/regexp /\A07\z/: number-not-present-and-trace-not-required
       - !ruby/regexp /\A08\z/: trace-postponed
-    # - field: identifier[0].extension[0].valueCodeableConcept.coding.display
+    - field: identifier[0].extension[0].valueCodeableConcept.coding.display
+      replace:
+      - !ruby/regexp /\A01\z/: Number present and verified
+      - !ruby/regexp /\A02\z/: Number present but not traced
+      - !ruby/regexp /\A03\z/: Trace required
+      - !ruby/regexp /\A04\z/: Trace attempted - No match or multiple match found
+      - !ruby/regexp /\A05\z/: Trace needs to be resolved - (NHS number or patient detail conflict)
+      - !ruby/regexp /\A06\z/: Trace in progress
+      - !ruby/regexp /\A07\z/: Number not present and trace not required
+      - !ruby/regexp /\A08\z/: Trace postponed (baby under six weeks old)
   - column: PERSON BIRTH DATE
     # 3 M* an10 CCYY-MM-DD
     klass: FHIR::Patient
     mappings:
     - field: birthDate
-      # format: "%Y-%m-%d"
   - column: ETHNIC CATEGORY
     # 4 M* max an2
     klass: FHIR::Patient
@@ -61,11 +69,11 @@
     # - field: extension[0].valueCodeableConcept.coding[0].display
   - column: PERSON GENDER CODE CURRENT
     # 5 M* an1
-    klass: Hash
+    klass: FHIR::Patient
     mappings:
     - field: gender
       replace:
-      # Using UK Core "gender", not "Gender"
+      # Using UK Core "gender", not "Gender": male | female | other | unknown
       # - !ruby/regexp /\A0\z/: # TODO: Map to "Not Known"
       - !ruby/regexp /\A1\z/: male
       - !ruby/regexp /\A2\z/: female
@@ -103,22 +111,19 @@
     - field: REFERRINGORGANISATIONCODE
   - column: DIAGNOSTIC TEST REQUEST DATE
     # 11 R an10 CCYY-MM-DD
-    klass: Hash
+    klass: FHIR::ServiceRequest
     mappings:
-    - field: DIAGNOSTICTESTREQUESTDATE
-      format: "%Y-%m-%d"
+    - field: authoredOn
   - column: DIAGNOSTIC TEST REQUEST RECEIVED DATE
     # 12 R an10 CCYY-MM-DD
     klass: Hash
     mappings:
     - field: DIAGNOSTICTESTREQUESTRECEIVEDDATE
-      format: "%Y-%m-%d"
   - column: DIAGNOSTIC TEST DATE
     # 13 M an10 CCYY-MM-DD
-    klass: Hash
+    klass: FHIR::ImagingStudy
     mappings:
-    - field: DIAGNOSTICTESTDATE
-      format: "%Y-%m-%d"
+    - field: started
   - column: IMAGING CODE (NICIP)
     # 14 M max an6
     klass: Hash
@@ -128,8 +133,8 @@
     # 15 M min an6, max n18
     klass: FHIR::ImagingStudy
     mappings:
-    - field: series[0].bodySite.code
-    - field: series[0].bodySite.system
+    - field: procedureCode[0].coding[0].code
+    - field: procedureCode[0].coding[0].system
       replace:
       - !ruby/regexp /\A.+\z/: "http://snomed.info/sct"
   - column: SERVICE REPORT ISSUE DATE
@@ -137,7 +142,6 @@
     klass: Hash
     mappings:
     - field: SERVICEREPORTISSUEDATE
-      format: "%Y-%m-%d"
   - column: SITE CODE (OF IMAGING)
     # 17 M min an5 max an9
     klass: Hash

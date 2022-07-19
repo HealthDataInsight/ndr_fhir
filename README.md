@@ -1,6 +1,6 @@
 # NdrFhir [![Build Status](https://github.com/timgentry/ndr_fhir/workflows/Test/badge.svg)](https://github.com/timgentry/ndr_fhir/actions?query=workflow%3Atest)
 
-Based on [Ollie Tulloch](https://github.com/ollietulloch)'s boilerplate MongoDB example, this generates [FHIR](https://fhir.apache.org) resources(s) using [NdrImport](https://github.com/PublicHealthEngland/ndr_import).
+Based on [Ollie Tulloch](https://github.com/ollietulloch)'s boilerplate MongoDB example, this generates [FHIR](https://www.hl7.org/fhir/) resources(s) using [NdrImport](https://github.com/PublicHealthEngland/ndr_import).
 
 ## Installation
 

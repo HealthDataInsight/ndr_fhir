@@ -2,8 +2,6 @@
 
 require 'ndr_import'
 require 'ndr_import/universal_importer_helper'
-require 'ndr_fhir/type_casting'
-require 'ndr_fhir/generator/fhir_file_helper'
 require 'pathname'
 
 module NdrFhir

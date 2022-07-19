@@ -35,7 +35,7 @@ module NdrFhir
         end
       end
 
-      puts mapped_hashes.inspect
+      mapped_hashes
     end
 
     private

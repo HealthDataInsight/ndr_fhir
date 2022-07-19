@@ -8,6 +8,11 @@ class GeneratorTest < Minitest::Test
     @permanent_test_files = SafePath.new('permanent_test_files')
   end
 
+  def test_should_process_file
+    # mapped_hashes = generate_fhir('fake_dids_100.csv', 'dids_mapping.yml')
+    # TODO: Add tests here
+  end
+
   private
 
     def generate_fhir(source_file, table_mappings)

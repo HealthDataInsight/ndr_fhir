@@ -4,81 +4,147 @@
   filename_pattern: !ruby/regexp /.*\.csv\z/i
   header_lines: 0
   footer_lines: 0
-  klass: Hash
   columns:
   - column: NHS NUMBER
     # 1 M* n10
+    klass:
+    - FHIR::Patient
+    - FHIR::ImagingStudy
+    - FHIR::ServiceRequest
     mappings:
-    - field: NHSNUMBER
+    - field: identifier[0].system
+      replace:
+      - !ruby/regexp /\A.+\z/: https://fhir.nhs.uk/Id/nhs-number
+    - field: identifier[0].value
+    - field: subject.reference
+      replace:
+      - !ruby/regexp /\A(.*)\z/: "Patient/\\1"
   - column: NHS NUMBER STATUS INDICATOR CODE
     # 2 R an2
+    klass: FHIR::Patient
     mappings:
-    - field: NHSNUMBERSTATUSINDICATORCODE
+    - field: identifier[0].extension[0].url
+      replace:
+      - !ruby/regexp /\A.+\z/: https://fhir.hl7.org.uk/StructureDefinition/Extension-UKCore-NHSNumberVerificationStatus
+    - field: identifier[0].extension[0].valueCodeableConcept.coding.system
+      replace:
+      - !ruby/regexp /\A.+\z/: https://fhir.hl7.org.uk/CodeSystem/UKCore-NHSNumberVerificationStatus
+    - field: identifier[0].extension[0].valueCodeableConcept.coding.code
+      replace:
+      # Mapping from NHS Data Disctionary and https://simplifier.net/packages/fhir.r4.ukcore.stu1/0.5.1/files/597352
+      - !ruby/regexp /\A01\z/: number-present-and-verified
+      - !ruby/regexp /\A02\z/: number-present-but-not-traced
+      - !ruby/regexp /\A03\z/: trace-required
+      - !ruby/regexp /\A04\z/: trace-attempted
+      - !ruby/regexp /\A05\z/: trace-needs-to-be-resolved
+      - !ruby/regexp /\A06\z/: trace-in-progress
+      - !ruby/regexp /\A07\z/: number-not-present-and-trace-not-required
+      - !ruby/regexp /\A08\z/: trace-postponed
+    # - field: identifier[0].extension[0].valueCodeableConcept.coding.display
   - column: PERSON BIRTH DATE
     # 3 M* an10 CCYY-MM-DD
+    klass: FHIR::Patient
     mappings:
-    - field: PERSONBIRTHDATE
-      format: "%Y-%m-%d"
+    - field: birthDate
+      # format: "%Y-%m-%d"
   - column: ETHNIC CATEGORY
     # 4 M* max an2
+    klass: FHIR::Patient
     mappings:
-    - field: ETHNICCATEGORY
+    - field: extension[0].url
+      replace:
+      - !ruby/regexp /\A.+\z/: https://fhir.hl7.org.uk/StructureDefinition/Extension-UKCore-EthnicCategory
+    - field: extension[0].valueCodeableConcept.coding[0].system
+      replace:
+      - !ruby/regexp /\A.+\z/: https://fhir.hl7.org.uk/CodeSystem/UKCore-EthnicCategory
+    - field: extension[0].valueCodeableConcept.coding[0].code
+    # - field: extension[0].valueCodeableConcept.coding[0].display
   - column: PERSON GENDER CODE CURRENT
     # 5 M* an1
+    klass: Hash
     mappings:
-    - field: PERSONGENDERCODECURRENT
+    - field: gender
+      replace:
+      # Using UK Core "gender", not "Gender"
+      # - !ruby/regexp /\A0\z/: # TODO: Map to "Not Known"
+      - !ruby/regexp /\A1\z/: male
+      - !ruby/regexp /\A2\z/: female
+      # - !ruby/regexp /\A9\z/: # TODO: Map to "Not Specified"
   - column: POSTCODE OF USUAL ADDRESS
     # 6 M* max an8
+    klass: FHIR::Patient
     mappings:
-    - field: POSTCODEOFUSUALADDRESS
+    # - field: address[0].extension[0].url "https://fhir.hl7.org.uk/StructureDefinition/Extension-UKCore-AddressKey"
+    # - field: address[0].extension[0].extension[0].url "type"
+    # - field: address[0].extension[0].extension[0].valueCoding.system "https://fhir.hl7.org.uk/CodeSystem/UKCore-AddressKeyType"
+    # - field: address[0].extension[0].extension[0].valueCoding.code "PAF"
+    # - field: address[0].extension[0].extension[0].valueCoding.display "Postcode Address File"
+    # - field: address[0].extension[0].extension[1].url "value"
+    # - field: address[0].extension[0].extension[1].valueString "LS10ABC"
+    - field: address[0].postalCode
+      # TODO: Clean with one space in the middle?
   - column: GENERAL MEDICAL PRACTICE CODE (PATIENT REGISTRATION)
     # 7 M* an6
+    do_not_capture: true
   - column: PATIENT SOURCE SETTING TYPE (DIAGNOSTIC IMAGING)
     # 8 M an2
+    klass: Hash
     mappings:
     - field: PATIENTSOURCESETTINGTYPE_DIAGNOSTICIMAGING
   - column: REFERRER CODE
     # 9 R an8
+    klass: Hash
     mappings:
     - field: REFERRERCODE
   - column: REFERRING ORGANISATION CODE
     # 10 R max an6
+    klass: Hash
     mappings:
     - field: REFERRINGORGANISATIONCODE
   - column: DIAGNOSTIC TEST REQUEST DATE
     # 11 R an10 CCYY-MM-DD
+    klass: Hash
     mappings:
     - field: DIAGNOSTICTESTREQUESTDATE
       format: "%Y-%m-%d"
   - column: DIAGNOSTIC TEST REQUEST RECEIVED DATE
     # 12 R an10 CCYY-MM-DD
+    klass: Hash
     mappings:
     - field: DIAGNOSTICTESTREQUESTRECEIVEDDATE
       format: "%Y-%m-%d"
   - column: DIAGNOSTIC TEST DATE
     # 13 M an10 CCYY-MM-DD
+    klass: Hash
     mappings:
     - field: DIAGNOSTICTESTDATE
       format: "%Y-%m-%d"
   - column: IMAGING CODE (NICIP)
     # 14 M max an6
+    klass: Hash
     mappings:
     - field: IMAGINGCODE_NICIP
   - column: IMAGING CODE (SNOMED CT)
     # 15 M min an6, max n18
+    klass: FHIR::ImagingStudy
     mappings:
-    - field: IMAGINGCODE_SNOMEDCT
+    - field: series[0].bodySite.code
+    - field: series[0].bodySite.system
+      replace:
+      - !ruby/regexp /\A.+\z/: "http://snomed.info/sct"
   - column: SERVICE REPORT ISSUE DATE
     # 16 R an10 CCYY-MM-DD
+    klass: Hash
     mappings:
     - field: SERVICEREPORTISSUEDATE
       format: "%Y-%m-%d"
   - column: SITE CODE (OF IMAGING)
     # 17 M min an5 max an9
+    klass: Hash
     mappings:
     - field: SITECODE_OFIMAGING
   - column: RADIOLOGICAL ACCESSION NUMBER
     # 18 M max an20
+    klass: FHIR::ImagingStudy
     mappings:
-    - field: RADIOLOGICALACCESSIONNUMBER
-      
+    - field: identifier

@@ -9,8 +9,14 @@ class GeneratorTest < Minitest::Test
   end
 
   def test_should_process_file
-    # mapped_hashes = generate_fhir('fake_dids_100.csv', 'dids_mapping.yml')
-    # TODO: Add tests here
+    mapped_hashes = generate_fhir('fake_dids_100.csv', 'dids_mapping.yml')
+
+    # TODO: Add tests here, logging to console for now
+
+    require 'json'
+    # puts JSON.pretty_generate(mapped_hashes.except('FHIR::Patient'))
+    # puts JSON.pretty_generate(mapped_hashes['FHIR::ServiceRequest'])
+    puts JSON.pretty_generate(mapped_hashes)
   end
 
   private

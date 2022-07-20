@@ -15,3 +15,8 @@ gem 'ndr_dev_support', '>= 3.1.3'
 gem 'rake', '~> 13.0'
 gem 'rubocop-minitest', require: false
 gem 'simplecov'
+gem 'fhir_models'
+gem 'fhir_client'
+group :test do
+  gem 'mocha'
+end

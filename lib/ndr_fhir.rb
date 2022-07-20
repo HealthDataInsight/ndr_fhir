@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'ndr_fhir/generator'
+require 'ndr_fhir/send'
 require 'ndr_fhir/version'
 
 # This exposes the root folder for filesystem paths

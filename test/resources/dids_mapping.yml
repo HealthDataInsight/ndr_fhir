@@ -8,9 +8,9 @@
   - column: NHS NUMBER
     # 1 M* n10
     klass:
-    - FHIR::Patient
-    - FHIR::ImagingStudy
-    - FHIR::ServiceRequest
+    - Patient
+    - ImagingStudy
+    - ServiceRequest
     mappings:
     - field: identifier[0].system
       replace:
@@ -21,7 +21,7 @@
       - !ruby/regexp /\A(.*)\z/: "Patient/\\1"
   - column: NHS NUMBER STATUS INDICATOR CODE
     # 2 R an2
-    klass: FHIR::Patient
+    klass: Patient
     mappings:
     - field: identifier[0].extension[0].url
       replace:
@@ -52,12 +52,12 @@
       - !ruby/regexp /\A08\z/: Trace postponed (baby under six weeks old)
   - column: PERSON BIRTH DATE
     # 3 M* an10 CCYY-MM-DD
-    klass: FHIR::Patient
+    klass: Patient
     mappings:
     - field: birthDate
   - column: ETHNIC CATEGORY
     # 4 M* max an2
-    klass: FHIR::Patient
+    klass: Patient
     mappings:
     - field: extension[0].url
       replace:
@@ -69,7 +69,7 @@
     # - field: extension[0].valueCodeableConcept.coding[0].display
   - column: PERSON GENDER CODE CURRENT
     # 5 M* an1
-    klass: FHIR::Patient
+    klass: Patient
     mappings:
     - field: gender
       replace:
@@ -80,7 +80,7 @@
       # - !ruby/regexp /\A9\z/: # TODO: Map to "Not Specified"
   - column: POSTCODE OF USUAL ADDRESS
     # 6 M* max an8
-    klass: FHIR::Patient
+    klass: Patient
     mappings:
     # - field: address[0].extension[0].url "https://fhir.hl7.org.uk/StructureDefinition/Extension-UKCore-AddressKey"
     # - field: address[0].extension[0].extension[0].url "type"
@@ -111,7 +111,7 @@
     - field: REFERRINGORGANISATIONCODE
   - column: DIAGNOSTIC TEST REQUEST DATE
     # 11 R an10 CCYY-MM-DD
-    klass: FHIR::ServiceRequest
+    klass: ServiceRequest
     mappings:
     - field: authoredOn
   - column: DIAGNOSTIC TEST REQUEST RECEIVED DATE
@@ -121,7 +121,7 @@
     - field: DIAGNOSTICTESTREQUESTRECEIVEDDATE
   - column: DIAGNOSTIC TEST DATE
     # 13 M an10 CCYY-MM-DD
-    klass: FHIR::ImagingStudy
+    klass: ImagingStudy
     mappings:
     - field: started
   - column: IMAGING CODE (NICIP)
@@ -129,9 +129,13 @@
     klass: Hash
     mappings:
     - field: IMAGINGCODE_NICIP
+    - field: procedureCode[0].coding[0].code
+    - field: procedureCode[0].coding[0].system
+      replace:
+      - !ruby/regexp /\A.+\z/: "http://snomed.info/TODO"
   - column: IMAGING CODE (SNOMED CT)
     # 15 M min an6, max n18
-    klass: FHIR::ImagingStudy
+    klass: ImagingStudy
     mappings:
     - field: procedureCode[0].coding[0].code
     - field: procedureCode[0].coding[0].system
@@ -149,6 +153,10 @@
     - field: SITECODE_OFIMAGING
   - column: RADIOLOGICAL ACCESSION NUMBER
     # 18 M max an20
-    klass: FHIR::ImagingStudy
+    klass: ImagingStudy
     mappings:
-    - field: identifier
+    - field: identifier[0].value
+    - field: identifier[0].system
+      replace:
+      - !ruby/regexp /\A.+\z/: https://fhir.nhs.uk/Id/to-do
+    

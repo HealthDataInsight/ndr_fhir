@@ -68,7 +68,7 @@ GEM
     capybara-screenshot (1.0.26)
       capybara (>= 1.0, < 4)
       launchy
-    cgi (0.3.2)
+    cgi (0.3.6)
     charlock_holmes (0.7.7)
     childprocess (4.1.0)
     cliver (0.3.2)
